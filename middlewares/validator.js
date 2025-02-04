@@ -16,3 +16,14 @@ exports.signInschema = joi.object({
                   .required()
                   .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,50}$'))
 })
+
+exports.acceptCodeSchema = joi.object({
+    email : joi.string()
+               .min(6)
+               .max(66)
+               .required()
+               .email({
+                 tlds : {allow : ['com','net']}
+               }),
+               providedCode : joi.number().required()
+})
