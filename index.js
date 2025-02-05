@@ -12,6 +12,8 @@ app.use(helmet())
 app.use(cookieParser())
 app.use(express.json())
 app.use(express.urlencoded({extended:false}))
+// app.set("view engine","ejs")
+// app.set("views","home.ejs")
 
 mongoose.connect(process.env.MONGO_URL)
 .then(()=>{console.log("Db Connected")})

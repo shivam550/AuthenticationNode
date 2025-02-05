@@ -27,3 +27,13 @@ exports.acceptCodeSchema = joi.object({
                }),
                providedCode : joi.number().required()
 })
+
+
+exports.changePasswordSchema = joi.object({
+    newPassword : joi.string()
+    .required()
+    .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,50}$')),
+    oldPassword : joi.string()
+    .required()
+    .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,50}$'))
+})      

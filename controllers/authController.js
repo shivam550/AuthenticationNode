@@ -1,5 +1,5 @@
 const transport = require("../middlewares/sendMail");
-const { signUpschema,signInschema,acceptCodeSchema } = require("../middlewares/validator");
+const { signUpschema,signInschema,acceptCodeSchema, changePasswordSchema } = require("../middlewares/validator");
 const User = require('../models/usersModel');
 const { doHash,doHashValidation, hmacProcess,} = require("../utils/hashing");
 const jwt = require("jsonwebtoken");
@@ -146,4 +146,42 @@ exports.verifyVerificationCode = async(req,res)=>{
     } catch (error) {
         console.log(error)
     }
+}
+
+
+exports.changePassword = async(req,res)=> {
+  const {userId ,verified} = req.user;
+  const { oldPassword , newPassword } = req.body;
+  try {
+    const { error , value } = changePasswordSchema.validate({oldPassword,newPassword})
+    if(error){
+        return res.status(401).json({success:false, message : error.details[0].message})
+    }
+    if(!verified){
+        return res
+        .status(401)
+        .json({success:false, message : "user not verified"})
+    }
+    const existingUser = await User.findOne({_id:userId}).select("+password")
+    if(!existingUser){
+        return res
+        .status(401)
+        .json({success:false, message : "user does not exits"})
+    }
+    const result = await doHashValidation(oldPassword , existingUser.password)
+    if(!result){
+        return res
+        .status(401)
+        .json({success:false, message : "Invalid Credentials"})
+    }
+    const hashedPassword = await doHash(newPassword,12)
+    existingUser.password = hashedPassword;
+    await existingUser.save()
+    return res
+        .status(200)
+        .json({success:true, message : "password Updated"})
+  } catch (error) {
+    console.log(error)
+  }
+
 }
